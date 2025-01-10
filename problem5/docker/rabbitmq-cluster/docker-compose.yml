@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+ rabbitmq-node-1:
+  image: rabbitmq:3.8.9-management-alpine
+  container_name: rabbitmq-node-1
+  hostname: rabbitmq-node-1
+  ports:
+   - "15672:15672"
+  networks:
+   - cluster-network
+  build: .
+  volumes:
+  #  - ./rabbitmq-cluster/rabbit-1/rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
+  #  - ./rabbitmq-cluster/rabbit-1/rabbitmq_management.conf:/etc/rabbitmq/rabbitmq.conf
+  #  - ./rabbitmq-cluster/rabbit-1/data:/var/lib/rabbitmq
+   - $PWD/data/rabbitmq-node-1:/var/lib/rabbitmq
+  environment:
+   - RABBITMQ_ERLANG_COOKIE=cluster_cookie
+   - RABBITMQ_DEFAULT_USER=ds112
+   - RABBITMQ_DEFAULT_PASS=ds112
+
+ rabbitmq-node-2:
+  image: rabbitmq:3.8.9-management-alpine
+  container_name: rabbitmq-node-2
+  hostname: rabbitmq-node-2
+  ports:
+   - "15673:15672"
+  networks:
+   - cluster-network
+  build: .
+  volumes:
+  #  - ./rabbitmq-cluster/rabbit-1/rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
+  #  - ./rabbitmq-cluster/rabbit-1/rabbitmq_management.conf:/etc/rabbitmq/rabbitmq.conf
+  #  - ./rabbitmq-cluster/rabbit-1/data:/var/lib/rabbitmq
+   - $PWD/data/rabbitmq-node-2:/var/lib/rabbitmq
+  environment:
+   - RABBITMQ_ERLANG_COOKIE=cluster_cookie
+   - RABBITMQ_DEFAULT_USER=ds112
+   - RABBITMQ_DEFAULT_PASS=ds112
+
+ rabbitmq-node-3:
+  image: rabbitmq:3.8.9-management-alpine
+  container_name: rabbitmq-node-3
+  hostname: rabbitmq-node-3
+  ports:
+   - "15674:15672"
+  networks:
+   - cluster-network
+  build: .
+  volumes:
+  #  - ./rabbitmq-cluster/rabbit-1/rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
+  #  - ./rabbitmq-cluster/rabbit-1/rabbitmq_management.conf:/etc/rabbitmq/rabbitmq.conf
+  #  - ./rabbitmq-cluster/rabbit-1/data:/var/lib/rabbitmq
+   - $PWD/data/rabbitmq-node-3:/var/lib/rabbitmq
+  environment:
+   - RABBITMQ_ERLANG_COOKIE=cluster_cookie
+   - RABBITMQ_DEFAULT_USER=ds112
+   - RABBITMQ_DEFAULT_PASS=ds112
+
+ haproxy:
+  image: haproxy-server-rabbitmq:latest
+  container_name: haproxy
+  hostname: haproxy
+  ports:
+    - "5672:5672"
+    - "8025:1936"
+  networks:
+   - cluster-network
+
+networks:
+ cluster-network:
+  driver: bridge

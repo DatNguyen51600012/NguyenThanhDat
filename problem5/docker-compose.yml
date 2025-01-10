@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+    postgres:
+        container_name: postgre-db
+        image: postgres:15.2
+        ports:
+            - "5433:5432"
+        restart: always
+        environment:
+            POSTGRES_DB: test
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: root
+            POSTGRES_INITDB_ARGS : --auth-host=scram-sha-256
+        env_file:
+            - src/.env
+        volumes: 
+            - ./postgres:/var/lib/postgresql/data
+    app:
+        container_name: api_service
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        depends_on:
+            - postgres
+        env_file:
+            - src/.env
+        ports:
+            - 8018:8018
+            - 9856:9856
+        links:
+            - postgres
+
+networks:
+    default:
+        name: bridge-network
